@@ -5,7 +5,8 @@ import strawberry
 
 @strawberry.type
 class Character:
-    id: int
+    __tablename__ = "characters"
+    char_id: int
     name: str
     birthday: str
     occupation: typing.List[str]
@@ -19,18 +20,20 @@ class Character:
 
 @strawberry.type
 class Episode:
-    id: int
+    __tablename__ = "episodes"
+    episode_id: int
     title: str
-    season: int 
-    episode: int 
-    air_date: str 
+    season: int
+    episode: int
+    air_date: str
     characters: typing.List[Character]
     series: str
 
 
 @strawberry.type
 class Quote:
-    id: int
+    __tablename__ = "quotes"
+    quote_id: int
     quote: str
     author: str
     series: str
@@ -38,7 +41,8 @@ class Quote:
 
 @strawberry.type
 class Death:
-    id: int
+    __tablename__ = "deaths"
+    death_id: int
     death: str
     cause: str
     responsible: str

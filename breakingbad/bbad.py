@@ -5,19 +5,19 @@ from schemas import Character, Death, Quote, Episode
 
 
 def get_characters():
-    return select_all("characters")
+    return select_all(class_map=Character)
 
 
 def get_deaths():
-    return select_all("deaths")
+    return select_all(class_map=Death)
 
 
 def get_quotes():
-    return select_all("quotes")
+    return select_all(class_map=Quote)
 
 
 def get_episodes():
-    return select_all("episodes")
+    return select_all(class_map=Episode)
 
 
 @strawberry.type
