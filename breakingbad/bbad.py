@@ -4,7 +4,7 @@ from data import select_all
 from schemas import Character, Death, Quote, Episode
 
 
-def get_characters():
+def get_chars():
     return select_all(class_map=Character)
 
 
@@ -22,7 +22,7 @@ def get_episodes():
 
 @strawberry.type
 class Query:
-    characters: typing.List[Character] = strawberry.field(resolver=get_characters)
+    characters: typing.List[Character] = strawberry.field(resolver=get_chars)
     deaths: typing.List[Death] = strawberry.field(resolver=get_deaths)
     quotes: typing.List[Quote] = strawberry.field(resolver=get_quotes)
     episodes: typing.List[Episode] = strawberry.field(resolver=get_episodes)
