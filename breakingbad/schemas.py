@@ -6,7 +6,7 @@ import strawberry
 @strawberry.type
 class Character:
     __tablename__ = "characters"
-    char_id: int
+    char_id: strawberry.ID
     name: str
     birthday: str
     occupation: typing.List[str]
@@ -21,7 +21,7 @@ class Character:
 @strawberry.type
 class Episode:
     __tablename__ = "episodes"
-    episode_id: int
+    episode_id: strawberry.ID
     title: str
     season: int
     episode: int
@@ -33,7 +33,7 @@ class Episode:
 @strawberry.type
 class Quote:
     __tablename__ = "quotes"
-    quote_id: int
+    quote_id: strawberry.ID
     quote: str
     author: str
     series: str
@@ -42,7 +42,7 @@ class Quote:
 @strawberry.type
 class Death:
     __tablename__ = "deaths"
-    death_id: int
+    death_id: strawberry.ID
     death: str
     cause: str
     responsible: str
