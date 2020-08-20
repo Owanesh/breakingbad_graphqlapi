@@ -1,5 +1,5 @@
 from __future__ import annotations
-import typing
+from typing import List
 import strawberry
 
 
@@ -9,13 +9,13 @@ class Character:
     char_id: strawberry.ID
     name: str
     birthday: str
-    occupation: typing.List[str]
+    occupation: List[str]
     img: str
     status: str
     nickname: str
-    appearance: typing.List[int]
+    appearance: List[int]
     portrayed: str
-    category: typing.List[str]
+    category: List[str]
 
 
 @strawberry.type
@@ -26,7 +26,7 @@ class Episode:
     season: int
     episode: int
     air_date: str
-    characters: typing.List[Character]
+    characters: List[Character]
     series: str
 
 
