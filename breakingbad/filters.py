@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 import strawberry
 from strawberry.arguments import UNSET
 
@@ -22,14 +22,14 @@ class EpisodeFilter:
     episode: Optional[int] = UNSET
     air_date: Optional[str] = UNSET
     series: Optional[str] = UNSET
-
+    # characters: Optional[str] = UNSET # must use in_() filter of sqlalchemy
 
 @strawberry.input
 class QuoteFilter:
     quote_id: Optional[strawberry.ID] = UNSET
     quote: Optional[str] = UNSET
-    author: Optional[str] = UNSET
     series: Optional[str] = UNSET
+    author_id: Optional[int] = UNSET
 
 
 @strawberry.input

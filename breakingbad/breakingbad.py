@@ -8,7 +8,7 @@ from filters import DeathFilter, EpisodeFilter, QuoteFilter, CharacterFilter
 def make_resolver(
     class_map: strawberry.type = None, filter_map: strawberry.type = None
 ) -> list:
-    def resolver(self, filters: filter_map = None) -> str:
+    def resolver(self, filters: filter_map = None):
         if not filters:
             return select_all(class_map=class_map)
         return select_by_field(class_map=class_map, filters=filters)
