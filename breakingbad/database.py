@@ -1,21 +1,19 @@
 
-from models_relationships import Base
-
-from typing import List
+from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, bindparam, sql
+from sqlalchemy import create_engine
 import strawberry
 from strawberry.arguments import is_unset
-from sqlalchemy.sql import text
 
 
+Base = automap_base()
 engine = create_engine("sqlite:///database.sqlite")
 Session = sessionmaker(bind=engine)
 Base.prepare(engine, reflect=True)
 
 
 def _clean_filter(filters: strawberry.input) -> dict:
-    clear_filter = filters.__dict__ 
+    clear_filter = filters.__dict__
     for key in list(clear_filter):
         if is_unset(clear_filter[key]):
             del(clear_filter[key])
