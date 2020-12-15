@@ -24,6 +24,9 @@ class EpisodeFilter:
     series: Optional[str] = UNSET
     # characters: Optional[str] = UNSET # must use in_() filter of sqlalchemy
 
+
+
+
 @strawberry.input
 class QuoteFilter:
     quote_id: Optional[strawberry.ID] = UNSET
