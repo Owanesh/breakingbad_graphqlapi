@@ -1,12 +1,11 @@
 from __future__ import annotations
 from typing import List
 import strawberry
-from database import select_by_field, metadata
+from database import select_by_field, metadata, _select_character_by_name
 from filters import CharacterFilter
-from sqlalchemy import Table, Column, Integer, String,  JSON 
+from sqlalchemy import Table, Column, Integer, String, JSON
 from sqlalchemy.orm import mapper
 
- 
 
 @strawberry.type
 class Character:
@@ -51,16 +50,14 @@ class Episode:
     episode: int
     air_date: str
     series: str
-    characters: List[str]
+    characters: List[Character]
 
-"""
     @strawberry.field
+    # todo: don't override attributes of model with custom resolvers
     def characters(self, info) -> List[Character]:
-        # import pdb; pdb.set_trace()
         return _select_character_by_name(
-            Character, list_of_names=lit_eval(self.characters)
+            Character, list_of_names=(self.characters)
         )
-"""
 
 
 episode_tbl = Table(
@@ -113,7 +110,12 @@ class Death:
     episode: int
     number_of_deaths: int
     last_words: str
-    responsible: str
+    responsible_id: str
+
+    @strawberry.field
+    def responsible(self, info) -> Character:
+        return select_by_field(Character, CharacterFilter(self.responsible_id))[0]
+
 
 death_tbl = Table(
     Death.__tablename__,
@@ -125,13 +127,7 @@ death_tbl = Table(
     Column("episode", Integer),
     Column("number_of_deaths", Integer),
     Column("last_words", String(35)),
-    Column("responsible", String(35)),
+    Column("responsible_id", Integer)
 )
 
 mapper(Death, death_tbl)
-
-
-    # Dont' use this
-    # @strawberry.field
-    # def responsible(self, info) -> Character:
-    #     return select_by_field(Character, CharacterFilter(name=self.responsible))[0]
