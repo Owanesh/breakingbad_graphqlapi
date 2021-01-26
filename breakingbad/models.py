@@ -5,7 +5,6 @@ from database import select_by_field, metadata
 from filters import CharacterFilter
 from sqlalchemy import Table, Column, Integer, String,  JSON 
 from sqlalchemy.orm import mapper
-
  
 
 @strawberry.type
@@ -115,6 +114,7 @@ class Death:
     last_words: str
     responsible: str
 
+
 death_tbl = Table(
     Death.__tablename__,
     metadata,
@@ -129,9 +129,3 @@ death_tbl = Table(
 )
 
 mapper(Death, death_tbl)
-
-
-    # Dont' use this
-    # @strawberry.field
-    # def responsible(self, info) -> Character:
-    #     return select_by_field(Character, CharacterFilter(name=self.responsible))[0]

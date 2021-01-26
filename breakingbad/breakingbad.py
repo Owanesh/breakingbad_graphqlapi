@@ -13,16 +13,17 @@ def make_resolver(
         if not filters:
             return select_all(class_map=class_map)
         return select_by_field(class_map=class_map, filters=filters)
-    # if is episodeFilter
-    # if ^- has character field not empty
     return resolver
 
 
 @strawberry.type
 class Query:
-    deaths: typing.List[Death] = strawberry.field(
-        resolver=make_resolver(class_map=Death, filter_map=DeathFilter)
-    )
+    @strawberry.field
+    def deaths(self, info, filters: DeathFilter, responsible: typing.Optional[CharacterFilter] = None) -> typing.List[Death]:
+        if responsible:
+            filters.responsible = select_by_field(class_map=Character, filters=responsible)[0].name
+        return select_by_field(class_map=Death, filters=filters)
+
     episodes: typing.List[Episode] = strawberry.field(
         resolver=make_resolver(class_map=Episode, filter_map=EpisodeFilter)
     )
@@ -33,5 +34,5 @@ class Query:
         resolver=make_resolver(class_map=Quote, filter_map=QuoteFilter)
     )
 
-
+ 
 schema = strawberry.Schema(query=Query)
