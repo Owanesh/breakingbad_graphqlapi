@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List
 import strawberry
-from database import select_by_field, metadata
+from database import select_by_field, metadata, _select_character_by_name
 from filters import CharacterFilter
 from sqlalchemy import Table, Column, Integer, String,  JSON 
 from sqlalchemy.orm import mapper
@@ -50,16 +50,12 @@ class Episode:
     episode: int
     air_date: str
     series: str
-    characters: List[str]
-
-"""
+    characters_name: List[str]
+    
     @strawberry.field
     def characters(self, info) -> List[Character]:
-        # import pdb; pdb.set_trace()
         return _select_character_by_name(
-            Character, list_of_names=lit_eval(self.characters)
-        )
-"""
+            Character, list_of_names=self.characters_name)
 
 
 episode_tbl = Table(
@@ -71,7 +67,7 @@ episode_tbl = Table(
     Column("episode", Integer),
     Column("air_date", String(200)),
     Column("series", String(35)),
-    Column("characters", JSON),
+    Column("characters_name", JSON),
 )
 
 mapper(Episode, episode_tbl)
