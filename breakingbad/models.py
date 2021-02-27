@@ -5,6 +5,8 @@ from database import select_by_field, metadata, _select_character_by_name
 from filters import CharacterFilter
 from sqlalchemy import Table, Column, Integer, String,  JSON 
 from sqlalchemy.orm import mapper
+
+ 
  
 
 @strawberry.type
@@ -21,6 +23,9 @@ class Character:
     serie: str
     season_appearance: List[int]
 
+    def identifier():
+        return Character.char_id
+ 
 
 character_tbl = Table(
     Character.__tablename__,
@@ -41,6 +46,8 @@ character_tbl = Table(
 mapper(Character, character_tbl)
 
 
+
+
 @strawberry.type
 class Episode:
     __tablename__ = "episodes"
@@ -51,12 +58,17 @@ class Episode:
     air_date: str
     series: str
     characters_name: List[str]
-    
+       
+    def identifier():
+        return Episode.episode_id
+
     @strawberry.field
     def characters(self, info) -> List[Character]:
         return _select_character_by_name(
             Character, list_of_names=self.characters_name)
 
+ 
+ 
 
 episode_tbl = Table(
     Episode.__tablename__,
@@ -80,6 +92,9 @@ class Quote:
     quote: str
     series: str
     author_id: int
+   
+    def identifier():
+        return Quote.quote_id
 
     @strawberry.field
     def author(self, info) -> Character:
@@ -110,6 +125,13 @@ class Death:
     last_words: str
     responsible: str
 
+    def identifier():
+        return Death.death_id
+
+    @strawberry.type
+    class QueryResult:
+        next: strawberry.ID
+        items: List[Death]
 
 death_tbl = Table(
     Death.__tablename__,

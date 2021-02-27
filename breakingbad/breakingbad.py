@@ -2,17 +2,23 @@ import strawberry
 from strawberry.arguments import UNSET
 import typing
 from models import Death, Episode, Character, Quote
-from database import select_by_field, select_all
+from database import select_by_field, select_all, element_exist
 from filters import DeathFilter, EpisodeFilter, QuoteFilter, CharacterFilter
 
 
-def make_resolver(class_map: strawberry.type = None,
-                  filter_map: strawberry.type = UNSET
-                  ) -> list:
+def make_resolver(
+    class_map: strawberry.type = None,
+    filter_map: strawberry.type = UNSET,
+    first: typing.Optional[int] = None,
+    after: typing.Optional[strawberry.ID] = None,
+) -> list:
     def resolver(filters: filter_map = None):
         if not filters:
-            return select_all(class_map=class_map)
-        return select_by_field(class_map=class_map, filters=filters)
+            return select_all(class_map=class_map, limit=first, offset=after)
+        return select_by_field(
+            class_map=class_map, filters=filters, limit=first, offset=after
+        )
+
     return resolver
 
 
@@ -24,14 +30,23 @@ class Query:
         info,
         filters: typing.Optional[DeathFilter] = None,
         responsible: typing.Optional[CharacterFilter] = None,
-    ) -> typing.List[Death]:
+        first: typing.Optional[int] = None,
+        after: typing.Optional[strawberry.ID] = None,
+    ) -> Death.QueryResult:
         if responsible:
             if not filters:
                 filters: CharacterFilter = CharacterFilter()
             filters.responsible = make_resolver(
                 class_map=Character, filter_map=responsible
             )()[0].name
-        return make_resolver(class_map=Death, filter_map=filters)()
+        has_next = (
+            (int(after) + first)
+            if element_exist(class_map=Death, identifier=int(after) + first)
+            else -1
+        )
+        return Death.QueryResult(
+            has_next, make_resolver(class_map=Death, first=first, after=after)()
+        )
 
     episodes: typing.List[Episode] = strawberry.field(
         resolver=make_resolver(class_map=Episode, filter_map=EpisodeFilter)

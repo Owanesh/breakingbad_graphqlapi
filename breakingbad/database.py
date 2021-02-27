@@ -16,18 +16,22 @@ def _clean_filter(filters: strawberry.input) -> dict:
             del(clear_filter[key])
     return clear_filter
 
-
-def select_all(class_map) -> list:
+def element_exist(class_map, identifier:int)->bool:
     session = Session()
-    res = session.query(class_map).all()
+    res = session.query(class_map).filter(class_map.identifier() == identifier).one()
+    return True if res else False
+
+def select_all(class_map, limit:int=None, offset:int=None) -> list:
+    session = Session()
+    res = session.query(class_map).filter(class_map.identifier() >= offset).limit(limit).all()
     return res
 
 
-def select_by_field(class_map, filters: strawberry.input) -> list:
+def select_by_field(class_map, filters: strawberry.input, limit: int = None, offset:int=None) -> list:
     session = Session()
     results = session.query(class_map).filter_by(**_clean_filter(filters)).all()
     return results
-
+ 
 
 def _select_character_by_name(class_map, list_of_names) -> list:
     session = Session()
