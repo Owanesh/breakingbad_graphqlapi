@@ -1,16 +1,26 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 import strawberry
 from database import select_by_field, metadata, _select_character_by_name
 from filters import CharacterFilter
-from sqlalchemy import Table, Column, Integer, String,  JSON 
+from sqlalchemy import Table, Column, Integer, String, JSON
 from sqlalchemy.orm import mapper
+from strawberry.arguments import UNSET
 
- 
- 
+
+@strawberry.interface
+class BasicModel:
+    __tablename__: str
+
+
+@strawberry.interface
+class BasicQueryResult:
+    items: Optional[List[Optional[BasicModel]]]
+    next: Optional[strawberry.ID] = UNSET
+
 
 @strawberry.type
-class Character:
+class Character(BasicModel):
     __tablename__ = "characters"
     char_id: strawberry.ID
     name: str
@@ -25,7 +35,7 @@ class Character:
 
     def identifier():
         return Character.char_id
- 
+
 
 character_tbl = Table(
     Character.__tablename__,
@@ -46,10 +56,8 @@ character_tbl = Table(
 mapper(Character, character_tbl)
 
 
-
-
 @strawberry.type
-class Episode:
+class Episode(BasicModel):
     __tablename__ = "episodes"
     episode_id: strawberry.ID
     title: str
@@ -58,17 +66,14 @@ class Episode:
     air_date: str
     series: str
     characters_name: List[str]
-       
+
     def identifier():
         return Episode.episode_id
 
     @strawberry.field
     def characters(self, info) -> List[Character]:
-        return _select_character_by_name(
-            Character, list_of_names=self.characters_name)
+        return _select_character_by_name(Character, list_of_names=self.characters_name)
 
- 
- 
 
 episode_tbl = Table(
     Episode.__tablename__,
@@ -86,13 +91,13 @@ mapper(Episode, episode_tbl)
 
 
 @strawberry.type
-class Quote:
+class Quote(BasicModel):
     __tablename__ = "quotes"
     quote_id: strawberry.ID
     quote: str
     series: str
     author_id: int
-   
+
     def identifier():
         return Quote.quote_id
 
@@ -114,7 +119,7 @@ mapper(Quote, quote_tbl)
 
 
 @strawberry.type
-class Death:
+class Death(BasicModel):
     __tablename__ = "deaths"
     death_id: strawberry.ID
     death: str
@@ -128,10 +133,6 @@ class Death:
     def identifier():
         return Death.death_id
 
-    @strawberry.type
-    class QueryResult:
-        next: strawberry.ID
-        items: List[Death]
 
 death_tbl = Table(
     Death.__tablename__,
@@ -147,3 +148,30 @@ death_tbl = Table(
 )
 
 mapper(Death, death_tbl)
+
+
+# TODO: refactor below
+
+
+@strawberry.type
+class CharacterQueryResult(BasicQueryResult):
+    next: Optional[strawberry.ID]
+    items: List[Optional[Character]]
+
+
+@strawberry.type
+class DeathQueryResult(BasicQueryResult):
+    next: Optional[strawberry.ID]
+    items: List[Optional[Death]]
+
+
+@strawberry.type
+class QuoteQueryResult(BasicQueryResult):
+    next: Optional[strawberry.ID]
+    items: List[Optional[Quote]]
+
+
+@strawberry.type
+class EpisodeQueryResult(BasicQueryResult):
+    next: Optional[strawberry.ID]
+    items: List[Optional[Episode]]

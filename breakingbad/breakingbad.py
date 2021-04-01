@@ -1,22 +1,51 @@
 import strawberry
 from strawberry.arguments import UNSET
-import typing
+from typing import Optional
 from models import Death, Episode, Character, Quote
+from models import (
+    DeathQueryResult,
+    EpisodeQueryResult,
+    CharacterQueryResult,
+    QuoteQueryResult,
+    BasicQueryResult,
+)
 from database import select_by_field, select_all, element_exist
 from filters import DeathFilter, EpisodeFilter, QuoteFilter, CharacterFilter
 
 
 def make_resolver(
     class_map: strawberry.type = None,
-    filter_map: strawberry.type = UNSET,
-    first: typing.Optional[int] = None,
-    after: typing.Optional[strawberry.ID] = None,
+    Qrm: BasicQueryResult = None,  # Query Result Model
+    filter_map: Optional[strawberry.type] = UNSET,
+    first: Optional[int] = UNSET,
+    after: Optional[strawberry.ID] = UNSET,
 ) -> list:
-    def resolver(filters: filter_map = None):
+    def resolver(
+        filters: Optional[filter_map] = UNSET,
+        first: Optional[int] = UNSET,
+        after: Optional[strawberry.ID] = UNSET,
+    ):
+        has_next = (
+            (
+                (int(after) + first)
+                if element_exist(class_map=class_map, identifier=int(after) + first)
+                else 0
+            )
+            if after
+            else 0
+        )
+        print("filter : ", filters)
         if not filters:
-            return select_all(class_map=class_map, limit=first, offset=after)
-        return select_by_field(
-            class_map=class_map, filters=filters, limit=first, offset=after
+            print("no filter available")
+            return Qrm(
+                next=has_next,
+                items=select_all(class_map=class_map, limit=first, offset=after),
+            )
+        return Qrm(
+            next=has_next,
+            items=select_by_field(
+                class_map=class_map, filters=filters, limit=first, offset=after
+            ),
         )
 
     return resolver
@@ -28,34 +57,40 @@ class Query:
     def deaths(
         self,
         info,
-        filters: typing.Optional[DeathFilter] = None,
-        responsible: typing.Optional[CharacterFilter] = None,
-        first: typing.Optional[int] = None,
-        after: typing.Optional[strawberry.ID] = None,
-    ) -> Death.QueryResult:
+        filters: Optional[DeathFilter] = UNSET,
+        responsible: Optional[CharacterFilter] = UNSET,
+        first: Optional[int] = UNSET,
+        after: Optional[strawberry.ID] = UNSET,
+    ) -> DeathQueryResult:
         if responsible:
             if not filters:
-                filters: CharacterFilter = CharacterFilter()
+                filters = DeathFilter()
             filters.responsible = make_resolver(
                 class_map=Character, filter_map=responsible
             )()[0].name
-        has_next = (
-            (int(after) + first)
-            if element_exist(class_map=Death, identifier=int(after) + first)
-            else -1
-        )
-        return Death.QueryResult(
-            has_next, make_resolver(class_map=Death, first=first, after=after)()
-        )
+        
+        return make_resolver(
+            class_map=Death,
+            filter_map=DeathFilter,
+            first=first,
+            after=after,
+            Qrm=DeathQueryResult,
+        )()
 
-    episodes: typing.List[Episode] = strawberry.field(
-        resolver=make_resolver(class_map=Episode, filter_map=EpisodeFilter)
+    episodes: EpisodeQueryResult = strawberry.field(
+        resolver=make_resolver(
+            class_map=Episode, filter_map=EpisodeFilter, Qrm=EpisodeQueryResult
+        )
     )
-    characters: typing.List[Character] = strawberry.field(
-        resolver=make_resolver(class_map=Character, filter_map=CharacterFilter)
+    characters: CharacterQueryResult = strawberry.field(
+        resolver=make_resolver(
+            class_map=Character, filter_map=CharacterFilter, Qrm=CharacterQueryResult
+        )
     )
-    quotes: typing.List[Quote] = strawberry.field(
-        resolver=make_resolver(class_map=Quote, filter_map=QuoteFilter)
+    quotes: QuoteQueryResult = strawberry.field(
+        resolver=make_resolver(
+            class_map=Quote, filter_map=QuoteFilter, Qrm=QuoteQueryResult
+        )
     )
 
 
