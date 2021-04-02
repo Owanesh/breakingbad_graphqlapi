@@ -41,7 +41,7 @@ All episodes with extra information on characters
   }
 }
 ```
-#### Filtering [wip]
+#### Filtering
 ```js
 {
   deaths(responsible:{nickname: "Heisenberg"}) {
