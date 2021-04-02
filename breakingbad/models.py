@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Generic, TypeVar
 import strawberry
 from database import select_by_field, metadata, _select_character_by_name
 from filters import CharacterFilter
@@ -13,9 +13,12 @@ class BasicModel:
     __tablename__: str
 
 
-@strawberry.interface
-class BasicQueryResult:
-    items: Optional[List[Optional[BasicModel]]]
+T = TypeVar("T")
+
+
+@strawberry.type
+class QueryResult(Generic[T]):
+    items: Optional[List[Optional[T]]]
     next: Optional[strawberry.ID] = UNSET
 
 
@@ -148,30 +151,3 @@ death_tbl = Table(
 )
 
 mapper(Death, death_tbl)
-
-
-# TODO: refactor below
-
-
-@strawberry.type
-class CharacterQueryResult(BasicQueryResult):
-    next: Optional[strawberry.ID]
-    items: List[Optional[Character]]
-
-
-@strawberry.type
-class DeathQueryResult(BasicQueryResult):
-    next: Optional[strawberry.ID]
-    items: List[Optional[Death]]
-
-
-@strawberry.type
-class QuoteQueryResult(BasicQueryResult):
-    next: Optional[strawberry.ID]
-    items: List[Optional[Quote]]
-
-
-@strawberry.type
-class EpisodeQueryResult(BasicQueryResult):
-    next: Optional[strawberry.ID]
-    items: List[Optional[Episode]]
