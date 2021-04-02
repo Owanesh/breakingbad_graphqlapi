@@ -1,7 +1,8 @@
 import strawberry
 from strawberry.arguments import UNSET
 from typing import Optional, Type
-from models import Death, Episode, Character, Quote, QueryResult
+from models import Death, Episode, Character, Quote
+from schema import QueryResult
 from database import select_by_field, select_all, element_exist
 from filters import DeathFilter, EpisodeFilter, QuoteFilter, CharacterFilter
 
@@ -24,17 +25,16 @@ def make_resolver(
             if after
             else 0
         )
-        if not filters:
-            return QueryResult(
-                next=has_next,
-                items=select_all(class_map=class_map, limit=first, offset=after),
-            )
-        return QueryResult(
-            next=has_next,
-            items=select_by_field(
+
+        items = (
+            select_all(class_map=class_map, limit=first, offset=after)
+            if not filters
+            else select_by_field(
                 class_map=class_map, filters=filters, limit=first, offset=after
-            ),
+            )
         )
+
+        return QueryResult(next=has_next, items=items)
 
     return resolver
 
