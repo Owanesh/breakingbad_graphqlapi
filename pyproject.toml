@@ -6,8 +6,8 @@ authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-SQLAlchemy = "^1.3.20"
-strawberry-graphql = "^0.53.1"
+SQLAlchemy = "^1.4.27"
+strawberry-graphql = "^0.87.1"
 
 [tool.poetry.dev-dependencies]
 
